@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Beatrice Womack - Frontend Developer Portfolio">
+    <title>Landing</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <main class="main-field">
+    </main>
+
+    <script src="js/tabBar.js"></script>
+    <script src="components/tabBar.js"></script>
+    <script src="js/windows.js"></script>
+    <script src="js/site.js"></script>
+
+    <script>
+        // portfolio windows
+        document.addEventListener('DOMContentLoaded', () => {
+            requestAnimationFrame(() => {
+                // about me
+                const aboutWin = createWindow('About Me', `
+                    <article class="blog-post">
+                        <h1>Beatrice Womack</h1>
+                        <div class="byline">CS/Frontend Dev</div>
+                        
+                        <p>Hi! I'm Beatrice, a developer passionate about creating elegant, interactive web experiences. I love the challenge of translating complex technical problems into intuitive user interfaces.
+                            I really enjoy crafting seamless user experiences that blend form and function, while making it look cute too!</p>
+
+                        <p>A lot of this portfolio is built using my own FloatingWindows library, which you can check out in the Featured Project window. JavaScript can be a little confusing, so I think it's nice to abstract
+                            the hard stuff into something easy to read, implement, and stylize. This is my general mantra, too!</p>
+                        
+                        <h2>What I Do</h2>
+                        <p>I specialize in frontend development with a pretty strong foundation in systems programming and some database design. While I am most comfortable on the frontend, I enjoy exploring various aspects of software development, and am flexible in wherever it might bring me.</p>
+                        
+                        <h2>Current Goals</h2>
+                        <p>I'm seeking internship opportunities where I can contribute to meaningful projects, learn from experienced developers, and grow my skills in modern web technologies. I have grown to be comfortable with my skills, but I am eager to continue learning and expanding my expertise.</p>
+                        
+                        <h2>Let's Connect</h2>
+                        <p> <a href="mailto:beatrice@kyubea.online">beatrice@kyubea.online</a></p>
+                        <p> <a href="https://github.com/kyubea" target="_blank" rel="noopener">github.com/kyubea</a></p>
+                        <p> <a href="chat.html">Try the live chat demo →</a></p>
+                    </article>
+                `, { left: 30, top: 100, width: 440, height: 520, allowResize: true, minWidth: 320, minHeight: 280, maxWidth: 600, maxHeight: 700 });
+                if (aboutWin && aboutWin.classList) aboutWin.classList.add('blog-window');
+
+                // skills
+                const skillsWin = createWindow('Technical Skills', `
+                    <article class="blog-post">
+                        <h2>Programming Languages</h2>
+                        <p style="padding: 8px 12px; background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.04)); border-left: 3px solid rgba(34,197,94,0.5); border-radius: 6px; margin: 8px 0;">
+                            <strong style="color: #16a34a;">Proficient:</strong> HTML, CSS, JavaScript, TypeScript, C++, Python
+                        </p>
+                        <p style="padding: 8px 12px; background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(59,130,246,0.04)); border-left: 3px solid rgba(59,130,246,0.5); border-radius: 6px; margin: 8px 0;">
+                            <strong style="color: #2563eb;">Familiar:</strong> Java, Node.js, ARMv6
+                        </p>
+                        <p style="padding: 8px 12px; background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(168,85,247,0.04)); border-left: 3px solid rgba(168,85,247,0.5); border-radius: 6px; margin: 8px 0;">
+                            <strong style="color: #9333ea;">Learning:</strong> React, Vue.js, SQL, Webpack, Vite
+                        </p>
+                        
+                        <h2 style="margin-top: 18px;">Technical Areas</h2>
+                        <p style="line-height: 1.7;">Web Development • Frontend Development • Database Design • Systems Programming • Assembly Language Programming • Library Development</p>
+                        
+                        <h2 style="margin-top: 18px;">Tools & Technologies</h2>
+                        <p style="line-height: 1.7;">Git • GitHub • Command Line • Version Control • Technical Documentation • Firebase • Firestore • Real-time Databases</p>
+                        
+                        <h2 style="margin-top: 18px;">Design & Media</h2>
+                        <p style="line-height: 1.7;">AfterEffects • DaVinci Resolve • Blender</p>
+                    </article>
+                `, { left: 486, top: 100, width: 500, height: 520, allowResize: true, minWidth: 360, minHeight: 320, maxWidth: 700, maxHeight: 800 });
+                if (skillsWin && skillsWin.classList) skillsWin.classList.add('blog-window');
+
+                // projects
+                const projectsWin = createWindow('Featured Project', `
+                    <article class="blog-post">
+                        <h1>FloatingWindows</h1>
+                        <div class="byline">Lightweight JavaScript Library for Draggable UI Components</div>
+                        
+                        <p>A dependency-free JavaScript library (~8kb minified) for creating draggable, resizable, and minimizable floating windows. Built with modularity and ease-of-use in mind.</p>
+                        
+                        <h2>Key Features</h2>
+                        <p><strong>Zero Dependencies:</strong> Lightweight vanilla JavaScript implementation with full touch support and smooth animations.</p>
+                        
+                        <p><strong>Smart Snapping:</strong> Intelligent edge and window-to-window snapping with configurable thresholds and padding.</p>
+                        
+                        <p><strong>Persistent State:</strong> Automatic localStorage integration remembers window positions and sizes across sessions.</p>
+                        
+                        <p><strong>Full API:</strong> Comprehensive manager and window methods for programmatic control, event listeners, and dynamic content updates.</p>
+                        
+                        <h2>Technical Highlights</h2>
+                        <p>• Touch-optimized drag/resize • Keyboard navigation • Dock minimization • Container bounds • Themeable CSS • Event system</p>
+                        
+                        <p style="margin-top:18px;"><a href="https://github.com/kyubea/FloatingWindows" target="_blank" rel="noopener" style="text-decoration:underline;">View on GitHub →</a></p>
+                        <p><em style="font-size: 12px;">This portfolio is built with an extended implementation of FloatingWindows</em></p>
+                    </article>
+                `, { left: 1002, top: 100, width: 480, height: 520, allowResize: true, minWidth: 400, minHeight: 300, maxWidth: 700, maxHeight: 700 });
+                if (projectsWin && projectsWin.classList) projectsWin.classList.add('blog-window');
+
+                // design notes window
+                const notesWin = createWindow('Design Notes', `
+                    <article class="blog-post">
+                        <h1>How to Use</h1>
+                        <p><strong>Drag:</strong> Click and hold any window's header to move it around. Windows snap to each other and viewport edges.</p>
+                        <p><strong>Resize:</strong> Grab the bottom-right corner of resizable windows to adjust their size.</p>
+                        <p><strong>Minimize:</strong> Click the × button to minimize windows to the dock (appears when windows are minimized).</p>
+                        <p><strong>Keyboard:</strong> Focus a window and use arrow keys to move it (hold Shift for larger steps).</p>
+                        
+                        <h1 style="margin-top: 16px;">Design Philosophy</h1>
+                        <p>My portfolio tries to embrace a nostalgic, old-web feel as both a tribute to early internet design and a showcase of technical capability. The retro styling is intentional. It demonstrates that modern JavaScript and CSS can recreate (and improve upon) classic interface patterns.</p>
+                        
+                        <p style="margin-top: 12px; font-size: 13px; opacity: 0.85;"><em>I hope you enjoy your time here!</em></p>
+                    </article>
+                `, { left: 60, top: 640, width: 420, height: 380, allowResize: true, minWidth: 360, minHeight: 280, maxWidth: 600, maxHeight: 500 });
+                if (notesWin && notesWin.classList) notesWin.classList.add('blog-window');
+            });
+        });
+    </script>
+
+</body>
+</html>

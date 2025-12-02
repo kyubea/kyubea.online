@@ -1,0 +1,821 @@
+/* existing styles... */
+
+/* presence / participant styling */
+.participant { display: flex; align-items: center; gap: 8px; padding: 6px 8px; }
+.participant-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: 0 0 10px; }
+.participant-dot.online { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.25); }
+.participant-dot.offline { background: #9ca3af; }
+.participant-name { font-weight: 500; color: #111827; }
+.uid-tag { font-size: 10px; color: #6b7280; margin-left: 2px; white-space: nowrap; }
+.you-tag { font-size: 11px; color: #6b7280; margin-left: 6px; }
+.last-seen { font-size: 12px; color: #6b7280; margin-left: 6px; }
+@keyframes scrollBackground {
+    from {
+        background-position: 0 0;    
+    }
+    to {
+        background-position: 40px 40px;
+    }
+  }
+
+body {
+  margin: 0;
+  background: #e6d9f0;
+  font-family: "MS PGothic", "MS Gothic", sans-serif;
+  background-image: url('../images/backgroundpattern.svg');
+  background-repeat: repeat;
+  background-size: 40px;
+  animation: scrollBackground 5s linear infinite;
+}
+
+.tab-bar {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: linear-gradient(to bottom, #c9b3db 0%, #b8a0cc 100%);
+  border-bottom: 2px solid #9980b3;
+  position: relative; /* needed for the decorative pseudo-element */
+}
+
+/* directory bar at the very top */
+.dir-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 11px; /* slightly larger for readability */
+  color: #f3eaf7;
+  background: linear-gradient(to bottom, #6f4e8a 0%, #5e3e71 100%); /* dark purple */
+  border-bottom: 1px solid rgba(0,0,0,0.12);
+}
+.dir-bar .dir-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  color: rgba(255,255,255,0.9);
+  font-size: 10px;
+}
+.dir-bar .dir-text {
+  opacity: 0.95;
+}
+
+/* breadcrumb links inside the directory text */
+.dir-bar .dir-text .dir-link {
+  color: inherit;
+  text-decoration: none;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: background 140ms ease, color 140ms ease;
+}
+.dir-bar .dir-text .dir-link:hover {
+  background: rgba(255,255,255,0.04);
+  text-decoration: underline;
+}
+.dir-bar .dir-text .dir-link:focus-visible {
+  outline: 2px solid rgba(153,128,179,0.20);
+  outline-offset: 2px;
+}
+
+/* current (non-clickable) breadcrumb segment */
+.dir-bar .dir-text .dir-current {
+  padding: 2px 4px;
+  border-radius: 3px;
+  color: rgba(255,255,255,0.95);
+  font-weight: 600;
+}
+
+.dir-bar:hover {
+  filter: brightness(1.06);
+}
+
+/* subtle diagonal checker/hatch overlay on the right side of the tab bar */
+.tab-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 80%; /* how much of the right side is covered by the pattern */
+  pointer-events: none;
+  opacity: 0; /* animated in */
+  background-image: repeating-linear-gradient(135deg,
+    rgba(153,128,179,0.10) 0 6px,
+    rgba(153,128,179,0.00) 6px 12px);
+  /* fade the pattern from transparent (left) to full (right) */
+  -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.25) 30%, rgba(0,0,0,1) 100%);
+  mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.25) 30%, rgba(0,0,0,1) 50%);
+  mix-blend-mode: multiply;
+  animation: tabPatternFade 900ms ease 120ms forwards;
+}
+
+@keyframes tabPatternFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.tab {
+  padding: 6px 15px;
+  background: #d4c4e3;
+  border: 1px solid #9980b3;
+  border-radius: 3px;
+  text-decoration: none;
+  color: #5a4a6a;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: #e0d4ed;
+}
+
+.tab.active {
+  background: #9980b3;
+  color: white;
+}
+
+/* dock buttons for minimized windows inside the tab bar */
+.window-dock-bar {
+  /* visible area below the tab bar — hidden by opacity and translate when not visible */
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  /* use the same base colors as the tab bar but much lighter/semi-opaque */
+  background: linear-gradient(to bottom, rgba(201,179,219,0.22), rgba(184,160,204,0.14));
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 200ms ease, transform 200ms ease;
+  pointer-events: none;
+}
+
+.window-dock-bar.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* global fallback dock positioning (bottom-right) */
+.window-dock-global {
+  width: auto !important;
+  right: 12px !important;
+  bottom: 12px !important;
+  left: auto !important;
+  position: fixed !important;
+  border-radius: 8px;
+}
+
+.window-dock {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.dock-btn {
+  /* match tab styling but scaled down */
+  background: #d4c4e3;
+  color: #5a4a6a;
+  border: 1px solid #9980b3;
+  padding: 0 10px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 30px;
+  height: 30px;
+  line-height: 1; /* keep text vertically centered regardless of font */
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap; /* prevent text spilling on narrow windows */
+}
+
+.dock-btn:hover {
+  background: #e0d4ed; /* same as .tab:hover */
+}
+
+.dock-btn:focus {
+  /* hide default focus border for mouse/click; keyboard users get focus-visible styling */
+  outline: none;
+}
+
+.dock-btn:focus-visible {
+  outline: 2px solid rgba(153,128,179,0.25);
+  outline-offset: 2px;
+}
+
+.dock-btn.active {
+  background: #9980b3;
+  color: white;
+  border-color: #7a67a0;
+}
+
+/* small modifier for compact buttons (e.g., send) */
+.dock-btn-small {
+  padding: 0 10px;
+  font-size: 12px;
+  min-width: 36px;
+  height: 30px;
+}
+
+/* minimized window state: keep in DOM but visually hidden and reduced */
+.window.minimized {
+  transform: translateY(-6px) scale(0.98);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.badge {
+  background: #5a4a6a;
+  color: white;
+  padding: 2px 3px 2px 5px;
+  border-radius: 10px;
+  margin-left: 5px;
+  margin-right: -5px;
+  font-size: 10px;
+  display: inline-block;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+/* flash animation when a new message arrives */
+@keyframes badgeFlash {
+  0% { transform: scale(1); filter: brightness(1); }
+  40% { transform: scale(1.18); filter: brightness(1.18); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+.badge.flash {
+  animation: badgeFlash 360ms cubic-bezier(.2,.8,.2,1);
+}
+
+/* when the badge text is longer (e.g. '20+') reduce font-size slightly to help fit */
+.badge.long {
+  font-size: 9px;
+}
+
+/* ===== draggable window styles ===== */
+.window {
+  position: absolute;
+  width: 320px;
+  max-width: 90vw;
+  background: #f4ecf7; /* light panel */
+  border: 1px solid #9980b3;
+  border-radius: 6px;
+  box-shadow: 0 8px 18px rgba(22,10,35,0.12);
+  overflow: hidden;
+  user-select: none;
+}
+
+/* make window a column so header stays fixed and .win-body fills remaining space
+   this ensures the body background covers the full interior even when content is short */
+.window {
+  display: flex;
+  flex-direction: column;
+}
+
+.window .win-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  /* slightly tighter header padding so body sits closer */
+  padding: 6px 8px;
+  background: linear-gradient(to bottom, #c9b3db 0%, #b8a0cc 100%);
+  color: #3f2f4a;
+  font-weight: 600;
+  cursor: grab;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.window .win-header:active {
+  cursor: grabbing;
+}
+
+.window .win-title {
+  display: inline-block;
+  font-size: 14px;
+}
+
+.window .win-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.win-btn {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  background: rgba(0,0,0,0.04);
+  color: #5a4a6a;
+  border: 1px solid rgba(0,0,0,0.06);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.win-btn:hover { background: rgba(0,0,0,0.06); }
+
+.window .win-body {
+  /* reduced padding so content sits closer to the header */
+  padding: 8px 10px;
+  font-size: 14px;
+  line-height: 1.35; /* tighter line spacing between lines */
+  color: #4a3a59;
+  background: rgba(255,255,255,0.9);
+  flex: 1 1 auto; /* fill remaining vertical space */
+  overflow: auto; /* allow scrolling when content exceeds height */
+}
+
+/* resizer handle (bottom-right) */
+.win-resizer {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  right: 8px;
+  bottom: 8px;
+  cursor: se-resize;
+  /* lighter purple background to indicate interactivity */
+  background: linear-gradient(135deg, rgba(185,148,205,0.28), rgba(169,136,195,0.14));
+  border: 1px solid rgba(153,128,179,0.16);
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset;
+  z-index: 10;
+}
+.win-resizer::before {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  margin: 3px auto 0 auto;
+  background-image: linear-gradient(45deg, rgba(153,128,179,0.4) 25%, transparent 25%, transparent 50%, rgba(153,128,179,0.4) 50%, rgba(153,128,179,0.4) 75%, transparent 75%, transparent);
+  background-size: 4px 4px;
+  opacity: 0.9;
+}
+
+/* indicator that appears left of the resizer while active */
+.win-resizer-indicator {
+  position: absolute;
+  right: 30px; /* to the left of the resizer */
+  bottom: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(153,128,179,0.95), rgba(122,103,160,0.95));
+  color: white;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 160ms ease, transform 160ms ease;
+  pointer-events: none;
+  box-shadow: 0 6px 18px rgba(22,10,35,0.12);
+}
+.win-resizer-indicator.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* reduce paragraph vertical spacing inside windows */
+.window .win-body p {
+  margin: 6px 0;
+}
+
+/* small helper: make badge stay inside window if used */
+.window .badge {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+
+/* focus / active z-index */
+.window[data-active="true"] {
+  z-index: 9999;
+}
+
+/* entering / closing animations */
+.window {
+  /* smooth movement and opacity transitions (enter/close) */
+  transition-property: transform, opacity;
+  transition-duration: 180ms;
+  transition-timing-function: cubic-bezier(0.2, 0.9, 0.2, 1);
+  /* transition-delay is applied only when entering via the .enter class */
+  opacity: 1;
+  transform: none;
+  transform-origin: top left;
+}
+
+/* initial state when created: small, slightly up, and invisible */
+.window.enter {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.98);
+  transition-delay: var(--enter-delay, 0ms);
+}
+
+/* chat UI styles */
+.chat-root { display:flex; flex-direction:column; height:100%; }
+.chat-header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 10px; }
+.current-name { display:flex; align-items:center; gap:8px; font-weight:700; color:#311b5f; min-width:0; }
+#currentNameDisplay { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* ensure the uid tag stays small and doesn't wrap in header */
+.current-name .uid-tag { font-size: 11px; color: #6b7280; }
+.status-dot { width:10px; height:10px; border-radius:50%; display:inline-block; background:#9ca3af; box-shadow:none; }
+.status-dot.online { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.18); }
+.status-dot.offline { background: #9ca3af; }
+.name-edit { display:flex; align-items:center; gap:8px; flex: 1 1 auto; min-width: 0; justify-content: flex-end; }
+.name-label { font-size:12px; color:#4b2f6f; opacity:0.9; flex:0 0 auto; }
+.name-edit input { padding:6px 8px; border:1px solid rgba(0,0,0,0.06); border-radius:6px; max-width: 220px; height: 30px; box-sizing: border-box; font-family: inherit; }
+.name-edit .dock-btn { height: 30px; }
+
+/* transient name feedback placed in the window header, left of the control buttons */
+.win-controls { display: flex; align-items: center; gap: 8px; }
+.win-controls .name-status {
+  font-size: 12px;
+  color: #4b2f6f;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(0);
+  transition: opacity 220ms ease, transform 220ms ease;
+  white-space: nowrap;
+  padding-right: 8px;
+  border-right: 1px solid rgba(122,103,160,0.08);
+  margin-right: 6px;
+}
+.win-controls .name-status.visible { opacity: 1; }
+.chat-body { display:flex; gap:12px; padding:8px; flex: 1 1 auto; min-height: 0; }
+.chat-left { flex:1 1 auto; display:flex; flex-direction:column; gap:8px; min-width: 0; min-height: 0; }
+.chat-right { width:180px; flex:0 0 180px; background: linear-gradient(180deg, rgba(217,205,236,0.6), rgba(210,192,227,0.45)); border:1px solid rgba(122,103,160,0.12); border-radius:8px; padding:8px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.35); position: relative; display:flex; flex-direction:column; min-height:0; }
+.members-header { margin-bottom:8px; color:#3f2f4a; font-weight:600; }
+.chat-messages { display:flex; flex-direction:column; flex:1 1 auto; overflow:auto; padding:10px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02)); border:1px solid rgba(122,103,160,0.06); border-radius:8px; min-height: 0; }
+.chat-msg { padding:10px 12px; margin-bottom:10px; background: #fff; border-radius:8px; border:1px solid rgba(122,103,160,0.06); box-shadow: 0 3px 8px rgba(22,10,35,0.06); }
+.chat-msg.mine { background: linear-gradient(180deg, rgba(153,128,179,0.12), rgba(153,128,179,0.04)); align-self:flex-end; border-color: rgba(122,103,160,0.12); }
+.chat-msg.beatrice { background: linear-gradient(180deg, #fff7cc, #fff0a6); border-color: rgba(244,196,48,0.45); box-shadow: 0 4px 10px rgba(244,196,48,0.22); }
+.chat-msg-header { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.chat-msg-who { font-weight:700; font-size:12px; color:#2a1b3e; }
+.chat-msg-meta { display:flex; align-items:center; gap:10px; color:#6b7280; font-size:11px; }
+.chat-msg-meta .msg-time { opacity: 0.9; }
+.chat-msg-meta .msg-reply { background: transparent; border: 1px solid rgba(0,0,0,0.06); border-radius: 4px; padding: 2px 6px; font-size: 11px; color:#5a4a6a; cursor: pointer; }
+.chat-msg-meta .msg-reply:hover { background: rgba(153,128,179,0.08); }
+.chat-msg-text { font-size:14px; color:#1f1530; margin-top:6px; }
+.participants { display:flex; flex-direction:column; gap:6px; flex:1 1 auto; min-height:0; overflow:auto; }
+.chat-msg-who { font-weight:700; font-size:12px; color:#3f2f4a; }
+.chat-msg-text { font-size:14px; color:#4a3a59; margin-top:4px; }
+.chat-form { display:flex; gap:8px; margin-top:8px; }
+.chat-form { display:flex; gap:8px; margin-top:8px; align-items:center; }
+.chat-form input { flex:1 1 auto; min-width: 0; padding:6px 8px; border-radius:6px; border:1px solid rgba(0,0,0,0.06); height: 30px; box-sizing: border-box; font-family: inherit; }
+.chat-form button:not(.dock-btn) { padding:0 12px; height:30px; line-height:1; border-radius:6px; background:#9980b3; color:#fff; border:none; cursor:pointer; font-family: inherit; }
+/* ensure dock-btn inside the form doesn't shrink or overlap input */
+.chat-form .dock-btn { flex: 0 0 auto; }
+.chat-form .send-btn { min-width: 64px; }
+.participant { padding:4px 6px; background:rgba(153,128,179,0.06); border-radius:4px; font-size:13px; }
+.participant.beatrice { background: rgba(244,196,48,0.12); }
+.star { color: #f4c542; font-weight: 700; }
+.name-star { margin-left: 6px; }
+
+
+.chat-window .win-body { overflow: hidden; display: flex; flex-direction: column; }
+
+.chat-window .chat-left { min-height: 0; display: flex; flex-direction: column; }
+.chat-window .chat-messages { min-height: 0; flex: 1 1 auto; overflow: auto; }
+
+/* reply quoted block inside messages */
+.reply-quote { margin-top:6px; margin-bottom:4px; padding:6px 8px; border-left: 3px solid rgba(153,128,179,0.30); background: linear-gradient(180deg, rgba(153,128,179,0.10), rgba(153,128,179,0.04)); border-radius: 6px; }
+.reply-quote-author { font-size: 11px; color:#4b2f6f; font-weight:700; }
+.reply-quote-snippet { font-size: 12px; color:#4a3a59; white-space: pre-wrap; word-break: break-word; }
+
+/* compose-time reply preview above the input */
+.reply-preview { position: relative; margin-top: 6px; margin-bottom: 4px; padding:8px 32px 8px 10px; border-left: 3px solid rgba(153,128,179,0.45); background: linear-gradient(180deg, rgba(153,128,179,0.12), rgba(153,128,179,0.06)); border: 1px solid rgba(122,103,160,0.12); border-radius: 6px; }
+.reply-preview .reply-title { font-size: 12px; color:#3f2f4a; font-weight:700; margin-bottom: 4px; }
+.reply-preview .reply-snippet { font-size: 12px; color:#4a3a59; white-space: pre-wrap; word-break: break-word; }
+.reply-preview .reply-cancel { position:absolute; right:6px; top:6px; background: transparent; border: 1px solid rgba(0,0,0,0.06); border-radius: 4px; width: 22px; height: 22px; display:inline-flex; align-items:center; justify-content:center; cursor: pointer; color:#5a4a6a; }
+.reply-preview .reply-cancel:hover { background: rgba(153,128,179,0.08); }
+
+/* users window layout */
+.users-window .win-body { overflow: hidden; display: flex; flex-direction: column; }
+.users-window .users-root { display: flex; flex-direction: column; gap: 8px; padding: 8px; height: 100%; box-sizing: border-box; position: relative; }
+.users-window .members-header { margin: 0; color:#3f2f4a; font-weight:600; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.users-window .users-controls { position: relative; }
+.users-window .users-controls .users-menu { position: absolute; right: 0; top: 28px; min-width: 220px; 
+  background: linear-gradient(180deg, #ffffff 0%, #f4ecf7 100%);
+  border: 1px solid rgba(122,103,160,0.18); border-radius: 8px; box-shadow: 0 10px 24px rgba(22,10,35,0.16); padding: 8px; z-index: 10;
+  font-family: "MS PGothic", "MS Gothic", sans-serif;
+  opacity: 0; transform: translateY(-6px) scale(0.98); pointer-events: none; transition: opacity 160ms ease, transform 160ms ease;
+}
+.users-window .users-controls .users-menu.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+.users-window .users-controls .users-menu .menu-section { font-size: 12px; color: #5a4a6a; margin: 4px 0; }
+.users-window .users-controls .users-menu .menu-item { display: flex; align-items:center; gap: 8px; font-size: 13px; padding: 4px; border-radius: 4px; cursor: pointer; }
+.users-window .users-controls .users-menu .menu-item:hover { background: rgba(153,128,179,0.08); }
+.users-window .users-controls .users-menu .menu-sep { height: 1px; background: rgba(0,0,0,0.06); margin: 6px 0; }
+.users-window .users-controls .users-menu .menu-actions { display:flex; gap:6px; }
+.users-window .participants { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 8px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02)); border:1px solid rgba(122,103,160,0.06); border-radius:8px; }
+.users-window .participant { display:flex; align-items:center; gap: 8px; }
+/* group header styling for users list */
+.users-window .group-header {
+  margin: 6px 2px 4px 2px;
+  padding: 4px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: #3f2f4a;
+  background: linear-gradient(180deg, rgba(153,128,179,0.10), rgba(153,128,179,0.04));
+  border: 1px solid rgba(122,103,160,0.10);
+  border-radius: 6px;
+}
+
+.users-context-menu {
+  /* use fixed positioning so the menu can anchor next to a name anywhere */
+  position: fixed;
+  min-width: 180px;
+  background: linear-gradient(180deg, #ffffff 0%, #f4ecf7 100%);
+  border: 1px solid rgba(122,103,160,0.18);
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(22,10,35,0.16);
+  padding: 6px;
+  z-index: 20010; /* above active windows */
+  font-family: "MS PGothic", "MS Gothic", sans-serif;
+  opacity: 0; transform: translateY(-6px) scale(0.98); pointer-events: none; transition: opacity 160ms ease, transform 160ms ease;
+}
+.users-context-menu.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+.users-context-menu .menu { display: flex; flex-direction: column; gap: 4px; }
+.users-context-menu .menu-item {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 6px 8px;
+  text-align: left;
+  font-size: 13px;
+  color: #3f2f4a;
+  cursor: pointer;
+}
+.users-context-menu .menu-item:hover {
+  background: linear-gradient(180deg, rgba(153,128,179,0.10), rgba(153,128,179,0.06));
+  border-color: rgba(122,103,160,0.12);
+}
+
+/* closing state: fade & lift */
+.window.closing {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.98);
+  transition-duration: 150ms;
+  /* ensure closing is immediate and not affected by enter delays */
+  transition-delay: 0ms !important;
+}
+
+.snap-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20000; 
+}
+.snap-overlay .snap-line {
+  stroke: rgba(122,103,160,0.95);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transition: opacity 120ms ease;
+}
+.snap-overlay .snap-node {
+  fill: rgba(153,128,179,0.95);
+  stroke: rgba(255,255,255,0.65);
+  stroke-width: 1;
+  transition: opacity 120ms ease, r 120ms ease;
+}
+
+/* blog post styles for the fixed-size scrollable window */
+.blog-post {
+  padding: 14px 16px;
+  font-family: "MS PGothic", "MS Gothic", sans-serif;
+  color: #2d2435;
+  background: transparent;
+}
+.blog-post h1 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  line-height: 1.15;
+  color: #3a2b47;
+}
+.blog-post .byline {
+  font-size: 12px;
+  color: #6b596f;
+  margin-bottom: 10px;
+}
+.blog-post p {
+  margin: 10px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.blog-post h2 {
+  margin-top: 14px;
+  font-size: 15px;
+  color: #4b3a56;
+}
+.blog-post blockquote {
+  margin: 12px 0;
+  padding-left: 12px;
+  border-left: 3px solid rgba(153,128,179,0.22);
+  color: #513e59;
+  font-style: italic;
+}
+.img-placeholder {
+  display: block;
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(135deg, rgba(153,128,179,0.10), rgba(153,128,179,0.06));
+  border: 1px dashed rgba(153,128,179,0.25);
+  color: rgba(75,58,86,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.img-placeholder.small {
+  width: 48%;
+  height: 110px;
+  float: left;
+  margin-right: 12px;
+}
+
+.blog-post img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+.blog-post .img-figure {
+  margin: 12px 0;
+}
+.blog-post .img-figure figcaption {
+  font-size: 12px;
+  color: rgba(75,58,86,0.6);
+  margin-top: 6px;
+}
+.blog-post .img-figure.small {
+  width: 48%;
+  float: left;
+  margin-right: 12px;
+}
+
+/* ensure floats don't cause horizontal overflow inside the blog-post */
+.blog-post::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+.blog-window .win-body {
+  overflow: hidden; /* delegate scrolling to .blog-post */
+}
+.blog-window .blog-post {
+  box-sizing: border-box;
+  height: 100%;
+  /* only vertical scrolling allowed */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* themed purple scrollbar for the blog window */
+/* webkit */
+.blog-window .blog-post::-webkit-scrollbar {
+  width: 12px;
+}
+.blog-window .blog-post::-webkit-scrollbar-track {
+  background: rgba(153,128,179,0.06);
+  border-radius: 8px;
+}
+.blog-window .blog-post::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #b8a0cc 0%, #9980b3 100%);
+  border-radius: 8px;
+  border: 2px solid rgba(244,236,247,0.35);
+  opacity: 0; /* hidden until hover or active scroll */
+  transition: opacity 180ms ease, background 120ms ease;
+}
+.blog-window .blog-post:hover::-webkit-scrollbar-thumb,
+.blog-window .blog-post:active::-webkit-scrollbar-thumb,
+.blog-window .blog-post.scrolling::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+.blog-window .blog-post::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #c9b3db 0%, #a07bb7 100%);
+}
+
+/* firefox */
+.blog-window .blog-post {
+  scrollbar-width: thin;
+  /* default to transparent track/thumb; show colored thumb on hover/scroll via class toggle */
+  scrollbar-color: transparent rgba(153,128,179,0.06);
+}
+.blog-window .blog-post:hover,
+.blog-window .blog-post.scrolling {
+  scrollbar-color: #9980b3 rgba(153,128,179,0.06);
+}
+
+/* applies the same themed scrollbar to chat message lists so scrollbars match the blog window */
+/* webkit */
+.chat-window .chat-messages::-webkit-scrollbar {
+  width: 12px;
+}
+.chat-window .chat-messages::-webkit-scrollbar-track {
+  background: rgba(153,128,179,0.06);
+  border-radius: 8px;
+}
+.chat-window .chat-messages::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #b8a0cc 0%, #9980b3 100%);
+  border-radius: 8px;
+  border: 2px solid rgba(244,236,247,0.35);
+  opacity: 0;
+  transition: opacity 180ms ease, background 120ms ease;
+}
+.chat-window .chat-messages:hover::-webkit-scrollbar-thumb,
+.chat-window .chat-messages:active::-webkit-scrollbar-thumb,
+.chat-window .chat-messages.scrolling::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+.chat-window .chat-messages::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #c9b3db 0%, #a07bb7 100%);
+}
+/* applies same themed scrollbar to participants list */
+.chat-window .participants::-webkit-scrollbar {
+  width: 12px;
+}
+.chat-window .participants::-webkit-scrollbar-track {
+  background: rgba(153,128,179,0.06);
+  border-radius: 8px;
+}
+.chat-window .participants::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #b8a0cc 0%, #9980b3 100%);
+  border-radius: 8px;
+  border: 2px solid rgba(244,236,247,0.35);
+  opacity: 0;
+  transition: opacity 180ms ease, background 120ms ease;
+}
+.chat-window .participants:hover::-webkit-scrollbar-thumb,
+.chat-window .participants:active::-webkit-scrollbar-thumb,
+.chat-window .participants.scrolling::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+.chat-window .participants::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #c9b3db 0%, #a07bb7 100%);
+}
+/* firefox */
+.chat-window .chat-messages {
+  scrollbar-width: thin;
+  scrollbar-color: transparent rgba(153,128,179,0.06);
+}
+.chat-window .chat-messages:hover,
+.chat-window .chat-messages.scrolling {
+  scrollbar-color: #9980b3 rgba(153,128,179,0.06);
+}
+
+/* firefox scrollbar for participants */
+.chat-window .participants {
+  scrollbar-width: thin;
+  scrollbar-color: transparent rgba(153,128,179,0.06);
+}
+.chat-window .participants:hover,
+.chat-window .participants.scrolling {
+  scrollbar-color: #9980b3 rgba(153,128,179,0.06);
+}
+
+/* applies the same themed scrollbar to users window participants list */
+/* webkit */
+.users-window .participants::-webkit-scrollbar { width: 12px; }
+.users-window .participants::-webkit-scrollbar-track { background: rgba(153,128,179,0.06); border-radius: 8px; }
+.users-window .participants::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #b8a0cc 0%, #9980b3 100%);
+  border-radius: 8px;
+  border: 2px solid rgba(244,236,247,0.35);
+  opacity: 0;
+  transition: opacity 180ms ease, background 120ms ease;
+}
+.users-window .participants:hover::-webkit-scrollbar-thumb,
+.users-window .participants:active::-webkit-scrollbar-thumb,
+.users-window .participants.scrolling::-webkit-scrollbar-thumb { opacity: 1; }
+.users-window .participants::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #c9b3db 0%, #a07bb7 100%); }
+/* firefox */
+.users-window .participants { scrollbar-width: thin; scrollbar-color: transparent rgba(153,128,179,0.06); }
+.users-window .participants:hover,
+.users-window .participants.scrolling { scrollbar-color: #9980b3 rgba(153,128,179,0.06); }
+
+.tei-window .win-body { overflow: hidden; display: flex; }
+.tei-window .img-figure { margin: 0; width: 100%; height: 100%; display: grid; grid-template-rows: 1fr auto; gap: 6px; }
+.tei-window .img-figure img { width: 100%; height: 100%; object-fit: fill; border-radius: 6px; transition: width 120ms ease, height 120ms ease, transform 120ms ease; }
+.tei-window .img-figure figcaption { text-align: center; font-size: 12px; color: rgba(75,58,86,0.8); }
+
+@media (max-width: 720px) {
+  .chat-right { display: none; }
+  .chat-left { flex: 1 1 100%; }
+}
+
+
