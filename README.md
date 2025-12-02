@@ -1,6 +1,8 @@
 # Beatrice Womack - Portfolio
 
-Interactive portfolio website showcasing frontend development skills through a custom-built window management system.
+My interactive portfolio website showcasing (mostly) a custom-built window management system, as well as a live chat demo serviced through Firebase.
+
+The site can be accessed through here at [kyubea.online](https://kyubea.online)
 
 ## Contact
 
