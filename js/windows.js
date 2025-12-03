@@ -92,7 +92,7 @@
   function ensureSnapOverlay() {
     let svg = document.getElementById(SNAP_OVERLAY_ID);
     if (!svg) {
-      svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg = document.createElementNS('https://www.w3.org/2000/svg', 'svg');
       svg.setAttribute('id', SNAP_OVERLAY_ID);
       svg.setAttribute('class', 'snap-overlay');
       svg.setAttribute('width', '100%');
@@ -267,7 +267,7 @@
               const d = best.d;
               const baseOpacity = Math.max(0, Math.min(1, (VISUAL_THRESHOLD - d) / VISUAL_THRESHOLD));
               if (baseOpacity <= 0) return;
-              const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+              const line = document.createElementNS('https://www.w3.org/2000/svg','line');
               line.setAttribute('x1', Math.round(best.dc.x));
               line.setAttribute('y1', Math.round(best.dc.y));
               line.setAttribute('x2', Math.round(corner.x));
