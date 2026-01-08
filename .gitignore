@@ -10,6 +10,9 @@ firebase-debug.*.log*
 # fb cache
 .firebase/
 
+# tools folder (local admin scripts)
+tools/
+
 # runtime
 pids
 *.pid
