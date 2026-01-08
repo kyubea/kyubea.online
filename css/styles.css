@@ -823,7 +823,9 @@ body {
   position: fixed;
   inset: 0;
   z-index: 99999;
-  background: linear-gradient(135deg, #e6d9f0 0%, #d4c4e3 50%, #c9b3db 100%);
+  /* transparent overlay so scrolling background shows through */
+  background: rgba(230, 217, 240, 0.7);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -835,50 +837,79 @@ body {
   to { opacity: 1; }
 }
 
+/* styled like .window but not draggable */
 .maintenance-content {
   text-align: center;
-  padding: 48px 32px;
-  background: rgba(255,255,255,0.85);
-  border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(100,70,130,0.15), 0 0 0 1px rgba(153,128,179,0.2);
   max-width: 420px;
   margin: 20px;
+  /* match .window styling */
+  background: #f4ecf7;
+  border: 1px solid #9980b3;
+  border-radius: 6px;
+  box-shadow: 0 8px 18px rgba(22,10,35,0.12);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.maintenance-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: linear-gradient(to bottom, #c9b3db 0%, #b8a0cc 100%);
+  color: #3f2f4a;
+  font-weight: 600;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.maintenance-body {
+  padding: 24px 28px;
+  background: rgba(255,255,255,0.9);
 }
 
 .maintenance-icon {
-  font-size: 64px;
-  margin-bottom: 16px;
-  animation: maintenanceBounce 2s ease-in-out infinite;
+  font-size: 48px;
+  margin-bottom: 12px;
+  display: inline-block;
+  animation: maintenanceWave 1.5s ease-in-out infinite;
+  transform-origin: 70% 70%;
 }
 
-@keyframes maintenanceBounce {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-8px) rotate(-5deg); }
-  75% { transform: translateY(-4px) rotate(5deg); }
+@keyframes maintenanceWave {
+  0%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-8deg); }
+  30% { transform: rotate(14deg); }
+  40% { transform: rotate(-4deg); }
+  50% { transform: rotate(10deg); }
+  60%, 100% { transform: rotate(0deg); }
 }
 
 .maintenance-content h1 {
   margin: 0 0 12px;
-  font-size: 28px;
+  font-size: 22px;
   color: #3f2f4a;
   font-weight: 600;
 }
 
 .maintenance-message {
-  margin: 0 0 20px;
-  font-size: 16px;
+  margin: 0 0 16px;
+  font-size: 14px;
   color: #5a4a6a;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .maintenance-hint {
-  font-size: 13px;
+  font-size: 12px;
   color: #9980b3;
   font-style: italic;
 }
 
 body.maintenance-active > *:not(#maintenance-overlay):not(script):not(style) {
-  display: none !important;
+  visibility: hidden !important;
 }
 
 /* Owner bypass badge */

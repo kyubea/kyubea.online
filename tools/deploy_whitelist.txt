@@ -1,0 +1,19 @@
+# Files and folders to include in the Nekoweb deployment
+# Lines starting with # are comments. Blank lines are ignored.
+
+index.html
+chat.html
+stats.html
+
+css/
+
+js/windows.js
+js/site.js
+js/tabBar.js
+js/chat.js
+js/firebase/firebase-config.js
+js/firebase/claimName.js
+
+components/tabBar.js
+
+images/

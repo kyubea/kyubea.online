@@ -33,10 +33,13 @@ function createOverlay(message) {
   overlayEl.id = 'maintenance-overlay';
   overlayEl.innerHTML = `
     <div class="maintenance-content">
-      <div class="maintenance-icon">🔧</div>
-      <h1>Under Maintenance</h1>
-      <p class="maintenance-message">${escapeHtml(message || 'Site is undergoing maintenance. Check back soon!')}</p>
-      <div class="maintenance-hint">This won't take long!</div>
+      <div class="maintenance-header">Maintenance</div>
+      <div class="maintenance-body">
+        <div class="maintenance-icon">^_^</div>
+        <h1>Be Right Back!</h1>
+        <p class="maintenance-message">${escapeHtml(message || 'Site is undergoing maintenance. Check back soon!')}</p>
+        <div class="maintenance-hint">This won't take long!</div>
+      </div>
     </div>
   `;
   document.body.appendChild(overlayEl);
