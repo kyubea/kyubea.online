@@ -1,6 +1,6 @@
 import { app } from './firebase/firebase-config.js';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, query, orderBy, limit, deleteDoc, doc, getDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, query, orderBy, limit, deleteDoc, doc, getDoc, setDoc, onSnapshot, Timestamp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 import { getDatabase, ref, get as rget, child } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js';
 
 // owner gating is determined by existence of a document at owners/{uid}; no email or uid is embedded in client code
@@ -341,3 +341,78 @@ onAuthStateChanged(auth, ()=>{ updateOwnerUI(); });
 
 // initial messages load
 loadMessages().catch(()=>{});
+
+// ========== Maintenance Mode Toggle ==========
+const maintenanceToggle = document.getElementById('maintenanceToggle');
+const maintenanceStatus = document.getElementById('maintenanceStatus');
+const maintenanceMessage = document.getElementById('maintenanceMessage');
+
+let maintenanceUnsubscribe = null;
+
+function setupMaintenanceListener() {
+  if (maintenanceUnsubscribe) maintenanceUnsubscribe();
+  
+  maintenanceUnsubscribe = onSnapshot(doc(db, 'config', 'maintenance'), (snap) => {
+    if (snap.exists()) {
+      const data = snap.data();
+      maintenanceToggle.checked = !!data.enabled;
+      maintenanceMessage.value = data.message || '';
+      maintenanceStatus.textContent = data.enabled ? '🟠 Maintenance ON' : '🟢 Site is live';
+      maintenanceStatus.style.color = data.enabled ? '#f59e0b' : '#22c55e';
+    } else {
+      maintenanceToggle.checked = false;
+      maintenanceMessage.value = '';
+      maintenanceStatus.textContent = '🟢 Site is live (no config)';
+      maintenanceStatus.style.color = '#22c55e';
+    }
+  }, (error) => {
+    maintenanceStatus.textContent = 'Error loading config';
+    maintenanceStatus.style.color = '#dc2626';
+  });
+}
+
+maintenanceToggle?.addEventListener('change', async () => {
+  if (!isOwner()) {
+    maintenanceToggle.checked = !maintenanceToggle.checked;
+    alert('Sign in as owner to toggle maintenance mode');
+    return;
+  }
+  
+  const enabled = maintenanceToggle.checked;
+  const message = maintenanceMessage.value.trim() || 'Site is undergoing maintenance. Check back soon!';
+  
+  try {
+    await setDoc(doc(db, 'config', 'maintenance'), {
+      enabled,
+      message,
+      allowOwner: true,
+      updatedAt: Timestamp.now()
+    });
+  } catch (e) {
+    console.error('Failed to update maintenance config:', e);
+    alert('Failed to update: ' + (e.message || e));
+    maintenanceToggle.checked = !enabled; // revert
+  }
+});
+
+maintenanceMessage?.addEventListener('change', async () => {
+  if (!isOwner() || !maintenanceToggle.checked) return;
+  
+  const message = maintenanceMessage.value.trim() || 'Site is undergoing maintenance. Check back soon!';
+  
+  try {
+    await setDoc(doc(db, 'config', 'maintenance'), {
+      enabled: true,
+      message,
+      allowOwner: true,
+      updatedAt: Timestamp.now()
+    });
+  } catch (e) {
+    console.error('Failed to update message:', e);
+  }
+});
+
+// Start listening after auth is ready
+onAuthStateChanged(auth, () => {
+  setupMaintenanceListener();
+});
