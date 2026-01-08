@@ -753,7 +753,7 @@ function makeChatWindow() {
 }
 
 // create the chat window when DOM is ready and createWindow exists
-document.addEventListener('DOMContentLoaded', () => {
+function initChat() {
   // wait a frame for windows system to initialize
   requestAnimationFrame(() => {
     // if createWindow isn't ready yet (rare race), poll briefly and retry
@@ -776,4 +776,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, 150);
   });
-});
+}
+
+// Handle both fresh page load and dynamic import (after DOMContentLoaded already fired)
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initChat);
+} else {
+  initChat();
+}
