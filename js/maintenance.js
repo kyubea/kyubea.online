@@ -1,15 +1,8 @@
 /**
- * Maintenance Mode Check
+ * Maintenance Mode - Blocks content rendering until check passes
  * 
- * Checks Firestore for maintenance status and shows overlay if enabled.
- * Owners can bypass maintenance mode when signed in.
- * 
- * Usage: Add <script type="module" src="/js/maintenance.js"></script> to any page.
- * 
- * Toggle maintenance via:
- *   - Firebase Console: Firestore → config/maintenance → enabled: true/false
- *   - Admin page toggle button
- *   - Firebase CLI: firebase firestore:set config/maintenance --data '{"enabled":true,"message":"..."}'
+ * This script prevents page content from being created during maintenance.
+ * Content scripts should wait for window.maintenanceCheckComplete before rendering.
  */
 
 import { app } from './firebase/firebase-config.js';
@@ -19,12 +12,20 @@ import { getFirestore, doc, getDoc, onSnapshot } from 'https://www.gstatic.com/f
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Skip maintenance check on admin page so owner can always access it
 const isAdminPage = window.location.pathname.includes('admin');
 
+// Block content rendering by default (will be resolved after check)
+let resolveMaintenanceCheck;
+window.maintenanceCheckComplete = new Promise(resolve => {
+  resolveMaintenanceCheck = resolve;
+});
+
+// Track state
 let overlayEl = null;
 let isOwner = false;
 let maintenanceConfig = null;
+let authResolved = false;
+let configResolved = false;
 
 function createOverlay(message) {
   if (overlayEl) return;
@@ -52,6 +53,7 @@ function removeOverlay() {
     overlayEl = null;
     document.body.classList.remove('maintenance-active');
   }
+  removeOwnerIndicator();
 }
 
 function escapeHtml(text) {
@@ -75,24 +77,6 @@ async function checkOwnerStatus(user) {
   }
 }
 
-function updateMaintenanceState() {
-  if (!maintenanceConfig || !maintenanceConfig.enabled) {
-    removeOverlay();
-    return;
-  }
-  
-  // If maintenance is enabled but owner can bypass
-  if (maintenanceConfig.allowOwner && isOwner) {
-    removeOverlay();
-    // Show small indicator that maintenance mode is active
-    showOwnerIndicator();
-    return;
-  }
-  
-  // Show maintenance overlay
-  createOverlay(maintenanceConfig.message);
-}
-
 function showOwnerIndicator() {
   if (document.getElementById('maintenance-owner-badge')) return;
   
@@ -108,29 +92,58 @@ function removeOwnerIndicator() {
   if (badge) badge.remove();
 }
 
+function updateMaintenanceState() {
+  // Wait until both auth and config are resolved
+  if (!authResolved || !configResolved) return;
+  
+  // If maintenance is disabled, allow content
+  if (!maintenanceConfig || !maintenanceConfig.enabled) {
+    removeOverlay();
+    resolveMaintenanceCheck(true); // Allow content to render
+    return;
+  }
+  
+  // If maintenance is enabled but owner can bypass
+  if (maintenanceConfig.allowOwner && isOwner) {
+    removeOverlay();
+    showOwnerIndicator();
+    resolveMaintenanceCheck(true); // Allow content to render
+    return;
+  }
+  
+  // Maintenance is active and user cannot bypass
+  // Show overlay and DO NOT resolve the promise (content stays blocked)
+  createOverlay(maintenanceConfig.message);
+  // Don't call resolveMaintenanceCheck - content should not render
+}
+
 // Initialize
 if (!isAdminPage) {
   // Listen for auth state changes
   onAuthStateChanged(auth, async (user) => {
     await checkOwnerStatus(user);
+    authResolved = true;
     updateMaintenanceState();
   });
 
-  // Listen for maintenance config changes (real-time updates!)
+  // Listen for maintenance config
   onSnapshot(doc(db, 'config', 'maintenance'), (snap) => {
     if (snap.exists()) {
       maintenanceConfig = snap.data();
     } else {
       maintenanceConfig = { enabled: false };
     }
+    configResolved = true;
     updateMaintenanceState();
   }, (error) => {
-    // If config doesn't exist, assume no maintenance
     console.log('Maintenance config not found, assuming disabled');
     maintenanceConfig = { enabled: false };
+    configResolved = true;
     updateMaintenanceState();
   });
+} else {
+  // Admin page always allowed
+  resolveMaintenanceCheck(true);
 }
 
-// Export for admin page usage
 export { checkOwnerStatus };

@@ -18,10 +18,12 @@
     <script src="js/site.js"></script>
     <script type="module" src="js/maintenance.js"></script>
 
-    <script>
+    <script type="module">
+        // Wait for maintenance check before creating content
+        await window.maintenanceCheckComplete;
+        
         // portfolio windows
-        document.addEventListener('DOMContentLoaded', () => {
-            requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
                 // about me
                 const aboutWin = createWindow('About Me', `
                     <article class="blog-post">
@@ -117,7 +119,6 @@
                 `, { left: 60, top: 640, width: 420, height: 380, allowResize: true, minWidth: 360, minHeight: 280, maxWidth: 600, maxHeight: 500 });
                 if (notesWin && notesWin.classList) notesWin.classList.add('blog-window');
             });
-        });
     </script>
 
 </body>

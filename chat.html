@@ -17,6 +17,10 @@
     <script src="js/windows.js"></script>
     <script src="js/site.js"></script>
     <script type="module" src="js/maintenance.js"></script>
-    <script type="module" src="js/chat.js"></script>
+    <script type="module">
+        // Wait for maintenance check before loading chat
+        await window.maintenanceCheckComplete;
+        import('./js/chat.js');
+    </script>
 </body>
 </html>
